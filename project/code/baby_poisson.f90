@@ -77,7 +77,7 @@ contains
     deallocate(r_isd,x_isd,Ar_isd)
   end subroutine deallocate_isd
   
-  subroutine steep_descent(x,b,n)
+  subroutine steep_descent_d(x,b,n)
     use type_defs
     use afuns
     implicit none
@@ -102,7 +102,7 @@ contains
        write(*,*) iter, sqrt(res_norm2) 
     end do
     x = x_isd
-  end subroutine steep_descent
+  end subroutine steep_descent_d
 end module iterative_solver_D
 
 module iterative_solver_N
@@ -212,7 +212,7 @@ program ins
      else
         call allocate_isd(N_sys)
         call set_tol_isd(tol)
-        call steep_descent(u(1:nx),b,N_sys)
+        call steep_descent_d(u(1:nx),b,N_sys)
         call deallocate_isd
      end if
      u(0) = exp(-x(0))
@@ -228,10 +228,10 @@ program ins
      ! And we approximate u_x(x = 0) = -exp(0) by
      ! u(1) - u(-1) = 2*h * (-exp(0))
      ! Plug in
-     ! 2*u(1) - 2*u(0) = h*h*exp(-x(0)) - 2*h*(-exp(0)) 
+     ! 2*u(1) - 2*u(0) = h*h*exp(-x(0)) + 2*h*(-exp(0)) 
      ! We scale this by 1/2 to make the matrix symmetric
-     b(0) = 0.5_dp*b(0) + hx*exp(-x(0))
-     b(nx) = 0.5_dp*b(nx) - hx*exp(-x(nx))
+     b(0) = 0.5_dp*b(0) - hx*exp(-x(0))
+     b(nx) = 0.5_dp*b(nx) + hx*exp(-x(nx))
      if (use_direct) then
         ! FIX ME
      else
